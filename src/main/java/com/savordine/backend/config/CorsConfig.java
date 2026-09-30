@@ -13,7 +13,7 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://localhost:3000",
-                        "https://savor-dine-food-ordering-platform-1.vercel.app"
+                        "https://savor-dine-food-ordering-platform.vercel.app"
                 )
                 .allowedMethods(
                         "GET",
