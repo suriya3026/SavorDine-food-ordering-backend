@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin(origins = "http://localhost:3000")
 public class CartController {
 
     private final CartService cartService;
@@ -20,7 +19,10 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    // Get cart items
+    // ==========================================
+    // GET CART ITEMS
+    // ==========================================
+
     @GetMapping("/{userId}")
     public ResponseEntity<List<CartItem>> getCart(
             @PathVariable Long userId) {
@@ -30,7 +32,11 @@ public class CartController {
         );
     }
 
-    // Add food to cart
+
+    // ==========================================
+    // ADD FOOD TO CART
+    // ==========================================
+
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(
             @RequestBody CartRequest request) {
@@ -53,7 +59,11 @@ public class CartController {
         }
     }
 
-    // Update quantity
+
+    // ==========================================
+    // UPDATE CART QUANTITY
+    // ==========================================
+
     @PutMapping("/update")
     public ResponseEntity<?> updateQuantity(
             @RequestBody CartRequest request) {
@@ -76,7 +86,11 @@ public class CartController {
         }
     }
 
-    // Remove food from cart
+
+    // ==========================================
+    // REMOVE SINGLE FOOD
+    // ==========================================
+
     @DeleteMapping("/remove")
     public ResponseEntity<?> removeFromCart(
             @RequestParam Long userId,
@@ -84,7 +98,10 @@ public class CartController {
 
         try {
 
-            cartService.removeFromCart(userId, foodId);
+            cartService.removeFromCart(
+                    userId,
+                    foodId
+            );
 
             return ResponseEntity.ok(
                     "Food removed from cart"
@@ -98,7 +115,11 @@ public class CartController {
         }
     }
 
-    // Clear cart
+
+    // ==========================================
+    // CLEAR ENTIRE CART
+    // ==========================================
+
     @DeleteMapping("/clear/{userId}")
     public ResponseEntity<?> clearCart(
             @PathVariable Long userId) {
