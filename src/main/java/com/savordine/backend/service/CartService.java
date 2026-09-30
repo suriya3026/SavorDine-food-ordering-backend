@@ -34,6 +34,9 @@ public class CartService {
         this.foodRepository = foodRepository;
     }
 
+    // =========================
+    // GET OR CREATE CART
+    // =========================
     public Cart getOrCreateCart(Long userId) {
 
         User user = userRepository.findById(userId)
@@ -43,6 +46,9 @@ public class CartService {
                 .orElseGet(() -> cartRepository.save(new Cart(user)));
     }
 
+    // =========================
+    // GET CART ITEMS
+    // =========================
     public List<CartItem> getCartItems(Long userId) {
 
         Cart cart = getOrCreateCart(userId);
@@ -50,6 +56,9 @@ public class CartService {
         return cartItemRepository.findByCartId(cart.getId());
     }
 
+    // =========================
+    // ADD TO CART
+    // =========================
     @Transactional
     public CartItem addToCart(
             Long userId,
@@ -66,7 +75,10 @@ public class CartService {
         }
 
         CartItem cartItem = cartItemRepository
-                .findByCartIdAndFoodId(cart.getId(), foodId)
+                .findByCartIdAndFoodId(
+                        cart.getId(),
+                        foodId
+                )
                 .orElse(null);
 
         if (cartItem != null) {
@@ -87,6 +99,9 @@ public class CartService {
         return cartItemRepository.save(cartItem);
     }
 
+    // =========================
+    // UPDATE QUANTITY
+    // =========================
     @Transactional
     public CartItem updateQuantity(
             Long userId,
@@ -118,6 +133,9 @@ public class CartService {
         return cartItemRepository.save(cartItem);
     }
 
+    // =========================
+    // REMOVE SINGLE ITEM
+    // =========================
     @Transactional
     public void removeFromCart(
             Long userId,
@@ -136,6 +154,9 @@ public class CartService {
         cartItemRepository.deleteAll(items);
     }
 
+    // =========================
+    // CLEAR ENTIRE CART
+    // =========================
     @Transactional
     public void clearCart(Long userId) {
 
