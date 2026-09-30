@@ -8,7 +8,9 @@ import com.savordine.backend.repository.CartItemRepository;
 import com.savordine.backend.repository.CartRepository;
 import com.savordine.backend.repository.FoodRepository;
 import com.savordine.backend.repository.UserRepository;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,7 +34,6 @@ public class CartService {
         this.foodRepository = foodRepository;
     }
 
-    // Get or create cart
     public Cart getOrCreateCart(Long userId) {
 
         User user = userRepository.findById(userId)
@@ -42,7 +43,6 @@ public class CartService {
                 .orElseGet(() -> cartRepository.save(new Cart(user)));
     }
 
-    // Get cart items
     public List<CartItem> getCartItems(Long userId) {
 
         Cart cart = getOrCreateCart(userId);
@@ -50,8 +50,11 @@ public class CartService {
         return cartItemRepository.findByCartId(cart.getId());
     }
 
-    // Add food to cart
-    public CartItem addToCart(Long userId, Long foodId, Integer quantity) {
+    @Transactional
+    public CartItem addToCart(
+            Long userId,
+            Long foodId,
+            Integer quantity) {
 
         Cart cart = getOrCreateCart(userId);
 
@@ -84,7 +87,7 @@ public class CartService {
         return cartItemRepository.save(cartItem);
     }
 
-    // Update quantity
+    @Transactional
     public CartItem updateQuantity(
             Long userId,
             Long foodId,
@@ -93,11 +96,20 @@ public class CartService {
         Cart cart = getOrCreateCart(userId);
 
         CartItem cartItem = cartItemRepository
-                .findByCartIdAndFoodId(cart.getId(), foodId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .findByCartIdAndFoodId(
+                        cart.getId(),
+                        foodId
+                )
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Cart item not found"
+                        )
+                );
 
         if (quantity <= 0) {
+
             cartItemRepository.delete(cartItem);
+
             return null;
         }
 
@@ -106,24 +118,32 @@ public class CartService {
         return cartItemRepository.save(cartItem);
     }
 
-    // Remove food from cart
-    public void removeFromCart(Long userId, Long foodId) {
+    @Transactional
+    public void removeFromCart(
+            Long userId,
+            Long foodId) {
 
         Cart cart = getOrCreateCart(userId);
 
-        cartItemRepository.deleteByCartIdAndFoodId(
-                cart.getId(),
-                foodId
+        List<CartItem> items =
+                cartItemRepository.findByCartId(cart.getId());
+
+        items.removeIf(item ->
+                item.getFood() == null ||
+                !item.getFood().getId().equals(foodId)
         );
+
+        cartItemRepository.deleteAll(items);
     }
 
-    // Clear cart
+    @Transactional
     public void clearCart(Long userId) {
 
         Cart cart = getOrCreateCart(userId);
 
-        cartItemRepository.deleteByCartId(
-                cart.getId()
-        );
+        List<CartItem> items =
+                cartItemRepository.findByCartId(cart.getId());
+
+        cartItemRepository.deleteAll(items);
     }
 }
